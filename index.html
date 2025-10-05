@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hotel KPI Calculator — Bezla Pre-Screen</title>
+  <style>
+    :root{
+      --bg:#0f172a;          /* slate-900 */
+      --panel:#111827;       /* gray-900 */
+      --muted:#64748b;       /* slate-500 */
+      --text:#e5e7eb;        /* gray-200 */
+      --accent:#22d3ee;      /* cyan-400 */
+      --ok:#10b981;          /* emerald-500 */
+      --ring:#334155;        /* slate-700 */
+      --shadow: 0 10px 25px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      background: radial-gradient(1200px 800px at 20% -10%, rgba(34,211,238,.10), transparent 60%),
+                  radial-gradient(1000px 600px at 120% -10%, rgba(16,185,129,.10), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: clamp(16px, 4vw, 48px) auto;
+      padding: 0 16px;
+    }
+
+    header {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .title {
+      font-size: clamp(20px, 2.5vw, 28px);
+      font-weight: 800;
+      letter-spacing:.2px;
+    }
+    .badge {
+      font-size: 12px;
+      color: #0b1220;
+      background: linear-gradient(135deg, var(--accent), var(--ok));
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    @media (min-width: 820px){
+      .grid {
+        grid-template-columns: 1.05fr .95fr;
+        gap: 20px;
+      }
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.00));
+      border: 1px solid var(--ring);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(14px, 2.2vw, 22px);
+      backdrop-filter: blur(4px);
+    }
+
+    .card h2 {
+      font-size: clamp(16px, 2vw, 20px);
+      margin: 0 0 8px;
+      font-weight: 700;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px dashed rgba(148,163,184,.18);
+    }
+    .field:last-child { border-bottom: 0; }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .input-wrap {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .currency-prefix {
+      color: var(--muted);
+      font-weight: 700;
+      padding: 6px 10px;
+      border: 1px solid var(--ring);
+      border-radius: 10px;
+      background: rgba(255,255,255,.03);
+    }
+    input[type="number"]{
+      width: min(210px, 100%);
+      appearance: textfield;
+      -moz-appearance: textfield;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--ring);
+      background: rgba(2,6,23,.6);
+      color: var(--text);
+      font-weight: 600;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease, transform .02s ease;
+    }
+    input[type="number"]:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(34,211,238,.15);
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    .outputs {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .kpi {
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      border: 1px solid var(--ring);
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, rgba(34,211,238,.06), rgba(16,185,129,.06));
+    }
+    .kpi .name { font-weight: 700; }
+    .kpi .value {
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      letter-spacing:.2px;
+      font-size: clamp(18px, 3vw, 22px);
+    }
+    .kpi small { display:block; color: var(--muted); font-weight:600; }
+
+    .row-actions{
+      display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;
+    }
+    button{
+      border:0;
+      background: linear-gradient(135deg, var(--accent), var(--ok));
+      color:#051018;
+      font-weight:800;
+      padding: 10px 14px;
+      border-radius: 12px;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+    }
+    button.secondary{
+      background: transparent;
+      color: var(--text);
+      border:1px solid var(--ring);
+    }
+
+    footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align:center;
+    }
+    .sr-only{
+      position:absolute !important;
+      left:-9999px !important;
+      width:1px; height:1px; overflow:hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title">Hotel KPI Calculator</div>
+      <span class="badge" aria-hidden="true">HTML • CSS • JS</span>
+    </header>
+
+    <div class="grid" role="group" aria-label="Hotel KPI calculator">
+      <!-- Inputs -->
+      <section class="card" aria-labelledby="inputs-title">
+        <h2 id="inputs-title">Core Inputs</h2>
+        <p class="sub">Enter hotel metrics. Results update instantly.</p>
+
+        <div class="field">
+          <label for="roomsAvailable">Total Rooms Available</label>
+          <input id="roomsAvailable" name="roomsAvailable" type="number" inputmode="numeric"
+                 min="0" step="1" placeholder="e.g., 120" aria-describedby="roomsAvailableHint" />
+        </div>
+
+        <div class="field">
+          <label for="roomsSold">Rooms Sold</label>
+          <input id="roomsSold" name="roomsSold" type="number" inputmode="numeric"
+                 min="0" step="1" placeholder="e.g., 95" aria-describedby="roomsSoldHint" />
+        </div>
+
+        <div class="field">
+          <label for="totalRevenue">Total Room Revenue</label>
+          <div class="input-wrap">
+            <span class="currency-prefix" aria-hidden="true">$</span>
+            <input id="totalRevenue" name="totalRevenue" type="number" inputmode="decimal"
+                   min="0" step="0.01" placeholder="e.g., 15250.00" aria-describedby="revenueHint" />
+          </div>
+        </div>
+
+        <div class="row-actions">
+          <button id="fillDemo" type="button" title="Fill with sample data">Use Sample</button>
+          <button id="resetAll" class="secondary" type="button" title="Clear all fields">Reset</button>
+        </div>
+      </section>
+
+      <!-- Outputs -->
+      <section class="card" aria-labelledby="outputs-title">
+        <h2 id="outputs-title">Calculated Outputs</h2>
+        <p class="sub">Industry formulas: Occupancy = Rooms Sold ÷ Rooms Available × 100; ADR = Revenue ÷ Rooms Sold; RevPAR = Revenue ÷ Rooms Available.</p>
+
+        <div class="outputs" aria-live="polite" aria-atomic="true">
+          <div class="kpi">
+            <div>
+              <div class="name">Occupancy</div>
+              <small>(%)</small>
+            </div>
+            <div class="value" id="kpi-occupancy">N/A</div>
+          </div>
+
+          <div class="kpi">
+            <div>
+              <div class="name">Average Daily Rate</div>
+              <small>(ADR, $)</small>
+            </div>
+            <div class="value" id="kpi-adr">$0.00</div>
+          </div>
+
+          <div class="kpi">
+            <div>
+              <div class="name">Revenue Per Available Room</div>
+              <small>(RevPAR, $)</small>
+            </div>
+            <div class="value" id="kpi-revpar">$0.00</div>
+          </div>
+        </div>
+        <p class="sub" style="margin-top:10px">
+          Edge cases handled: when denominators are 0, Occupancy shows <strong>N/A</strong>;
+          ADR/RevPAR show <strong>$0.00</strong>.
+        </p>
+      </section>
+    </div>
+
+    <footer>
+      Built with accessibility in mind (labels, live updates, keyboard-friendly). No frameworks or libraries.
+    </footer>
+  </div>
+
+  <script>
+    // Utilities ---------------------------------------------------------------
+    const $ = (id) => document.getElementById(id);
+
+    const fmtCurrency = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+    });
+
+    const fmtPercent = (num) =>
+      isFinite(num) ? `${num.toFixed(2)}%` : "N/A";
+
+    // Elements
+    const roomsAvailableEl = $("roomsAvailable");
+    const roomsSoldEl = $("roomsSold");
+    const revenueEl = $("totalRevenue");
+
+    const occEl = $("kpi-occupancy");
+    const adrEl = $("kpi-adr");
+    const revparEl = $("kpi-revpar");
+
+    const resetBtn = $("resetAll");
+    const demoBtn = $("fillDemo");
+
+    // Core calculation with graceful handling --------------------------------
+    function calculate() {
+      // Parse values; clamp negatives to 0 to avoid nonsensical inputs
+      const totalRoomsAvailable = Math.max(0, Number(roomsAvailableEl.value));
+      const roomsSold = Math.max(0, Number(roomsSoldEl.value));
+      const totalRevenue = Math.max(0, Number(revenueEl.value));
+
+      // Occupancy (%)
+      let occupancy;
+      if (!totalRoomsAvailable) {
+        occupancy = "N/A";
+      } else {
+        const occ = (roomsSold / totalRoomsAvailable) * 100;
+        occupancy = fmtPercent(occ);
+      }
+
+      // ADR ($): revenue / rooms sold
+      const adr =
+        roomsSold === 0 ? fmtCurrency.format(0) :
+        fmtCurrency.format(totalRevenue / roomsSold);
+
+      // RevPAR ($): revenue / rooms available
+      const revpar =
+        totalRoomsAvailable === 0 ? fmtCurrency.format(0) :
+        fmtCurrency.format(totalRevenue / totalRoomsAvailable);
+
+      // Update UI
+      occEl.textContent = occupancy;
+      adrEl.textContent = adr;
+      revparEl.textContent = revpar;
+    }
+
+    // Event binding (real-time updates) --------------------------------------
+    ["input", "change"].forEach(evt => {
+      roomsAvailableEl.addEventListener(evt, calculate);
+      roomsSoldEl.addEventListener(evt, calculate);
+      revenueEl.addEventListener(evt, calculate);
+    });
+
+    // Buttons
+    resetBtn.addEventListener("click", () => {
+      roomsAvailableEl.value = "";
+      roomsSoldEl.value = "";
+      revenueEl.value = "";
+      calculate();
+      roomsAvailableEl.focus();
+    });
+
+    demoBtn.addEventListener("click", () => {
+      // Sample values representative of a 200-room hotel
+      roomsAvailableEl.value = 200;
+      roomsSoldEl.value = 165;
+      revenueEl.value = 25375.50;
+      calculate();
+    });
+
+    // Initial paint
+    calculate();
+  </script>
+</body>
+</html>
